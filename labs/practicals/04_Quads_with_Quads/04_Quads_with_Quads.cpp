@@ -12,7 +12,7 @@ target_camera cam;
 bool load_content() {
   // *********************************
   // Set geometry type to quads
-
+	geom.set_type(GL_QUADS);
   // *********************************
   // Create quad data
   // Positions
