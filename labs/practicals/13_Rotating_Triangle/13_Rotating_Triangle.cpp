@@ -1,5 +1,7 @@
 #include <glm\glm.hpp>
 #include <graphics_framework.h>
+#define _USE_MATH_DEFINES // for C++  
+#include <cmath> 
 
 using namespace std;
 using namespace graphics_framework;
@@ -45,10 +47,11 @@ bool update(float delta_time) {
 bool render() {
   // Bind effect
   renderer::bind(eff);
-  mat4 R;
+  
   // *********************************
   // Create rotation matrix - rotate around Z axis by theta
-
+  mat4 R = rotate(mat4(1.0f), theta , vec3(0.0f, 0.0f, 1.0f));
+  
   // *********************************
   // Create MVP matrix
   auto V = cam.get_view();
