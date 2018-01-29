@@ -52,6 +52,7 @@ bool update(float delta_time) {
 
 bool render() {
   // Bind effect
+	glDisable(GL_CULL_FACE);
   renderer::bind(eff);
 
   // *********************************
@@ -60,6 +61,7 @@ bool render() {
   mat4 S = scale(mat4(1.0f), vec3(s, s, s));
   mat4 R = rotate(mat4(1.0f), theta, vec3(0.0f, 1.0f, 0.0f));
   mat4 M = S * R;
+  
   // *********************************
   // Create MVP matrix
   auto V = cam.get_view();
