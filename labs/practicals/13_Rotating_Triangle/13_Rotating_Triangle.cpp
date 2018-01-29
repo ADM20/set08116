@@ -50,7 +50,7 @@ bool render() {
   
   // *********************************
   // Create rotation matrix - rotate around Z axis by theta
-  mat4 R = rotate(mat4(1.0f), theta , vec3(0.0f, 0.0f, 1.0f));
+  mat4 R = rotate(mat4(1.0f), theta , vec3(0.0f, 1.0f, 0.0f));
   
   // *********************************
   // Create MVP matrix
