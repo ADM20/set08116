@@ -70,7 +70,7 @@ bool update(float delta_time) {
 bool render() {
   // Bind effect
   renderer::bind(eff);
-  mat4 T, R, S;
+  mat4 T(1.0f), R(1.0f), S(1.0f);
   // *********************************
   // Create transformation matrices
   // ******************************
