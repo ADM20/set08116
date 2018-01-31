@@ -10,4 +10,18 @@
 using namespace std;
 using namespace glm;
 
-int main() {}
+int main() {
+	vec2 u(1.0f, 0.0f);
+	vec2 v(1.0f, 0.0f);
+	vec3 w(1.0f,  0.0f,0.0f);
+	vec3 x(1.0f, 0.0f, 0.0f);
+	vec4 y(1.0f, 0.0f, 0.0f,0.0f);
+	vec4 z(1.0f, 0.0f, 0.0f,0.0f);
+
+	vec3 u(vec2(1.0f, 0.0f), 0.0f);
+	vec4 v(vec2(1.0f, 0.0f), 0.0f, 0.0f);
+	vec2 w(vec3(1.0f, 0.0f, 0.0f));
+	vec4 x(vec3(1.0f, 0.0f, 0.0f), 0.0f);
+	vec2 y(vec4(1.0f, 0.0f, 0.0f, 0.0f));
+	vec3 z(vec4(1.0f, 0.0f, 0.0f, 0.0f));
+}
