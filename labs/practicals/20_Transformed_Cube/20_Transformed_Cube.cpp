@@ -19,22 +19,29 @@ bool load_content() {
   vector<vec3> positions{
       // *********************************
       // Add the position data for triangles here, (6 verts per side)
-      // Front
+	  // Front
+	  vec3(-1.0f,1.0f,0.0f),vec3(-1.0f,-1.0f,0.0f),vec3(1.0f,-1.0f,0.0f),
+	  vec3(-1.0f,1.0f,0.0f),vec3(1.0f,-1.0f,0.0f),vec3(1.0f,1.0f,0.0f),
 
+	  // Back
+	  vec3(-1.0f,1.0f,-2.0f),vec3(1.0f,-1.0f,-2.0f),vec3(-1.0f,-1.0f,-2.0f),
+	  vec3(-1.0f,1.0f,-2.0f),vec3(1.0f,1.0f,-2.0f),vec3(1.0f,-1.0f,-2.0f),
 
-      // Back
+	  // Right
+	  vec3(1.0f,1.0f,0.0f),vec3(1.0f,-1.0f,0.0f),vec3(1.0f,-1.0f,-2.0f),
+	  vec3(1.0f,1.0f,0.0f),vec3(1.0f,-1.0f,-2.0f),vec3(1.0f,1.0f,-2.0f),
 
+	  // Left
+	  vec3(-1.0f,-1.0f,0.0f),vec3(-1.0f,1.0f,0.0f),vec3(-1.0f,1.0f,-2.0f),
+	  vec3(-1.0f,-1.0f,0.0f),vec3(-1.0f,1.0f,-2.0f),vec3(-1.0f,-1.0f,-2.0f),
 
-      // Right
+	  // Top
+	  vec3(-1.0f,1.0f,0.0f),vec3(1.0f,1.0f,0.0f),vec3(-1.0f,1.0f,-2.0f),
+	  vec3(1.0f,1.0f,0.0f),vec3(1.0f,1.0f,-2.0f),vec3(-1.0f,1.0f,-2.0f),
 
-
-      // Left
-
-
-      // Top
-
-
-      // Bottom
+	  // Bottom
+	  vec3(-1.0f,-1.0f,0.0f),vec3(-1.0f,-1.0f,-2.0f),vec3(1.0f,-1.0f,0.0f),
+	  vec3(1.0f,-1.0f,0.0f),vec3(-1.0f,-1.0f,-2.0f),vec3(1.0f,-1.0f,-2.0f),
 
 
       // *********************************
@@ -69,33 +76,42 @@ bool update(float delta_time) {
   // Arrow Keys - rotation
   // O decrease scale, P increase scale
 
+	//rotate
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_UP)) {
+		theta -= pi<float>() * delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_DOWN)) {
+		theta += pi<float>() * delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_RIGHT)) {
+		rho -= pi<float>() * delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_LEFT)) {
+		rho += pi<float>() * delta_time;
+	}
 
+	//move
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_W)) {
+		pos += vec3(0.0f, 0.0f, -5.0f) * delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_S)) {
+		pos += vec3(0.0f, 0.0f, 5.0f) * delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_A)) {
+		pos += vec3(-5.0f, 0.0f, 0.0f) * delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_D)) {
+		pos += vec3(5.0f, 0.0f, 0.0f) * delta_time;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	//scale
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_P)) {
+		s += 0.05;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_O)) {
+		s += -0.05;
+	}
+	
 
 
   // *********************************
@@ -107,11 +123,13 @@ bool update(float delta_time) {
 bool render() {
   // Bind effect
   renderer::bind(eff);
-  mat4 T, R, S, M;
+  
   // *********************************
   // Create transformation matrix
-
-
+  mat4 T = translate(mat4(1.0f), pos);
+  mat4 R = eulerAngleXZ(theta, rho);
+  mat4 S = scale(mat4(1.0f), vec3(s, s, s));
+  mat4 M = T * (R * S);
 
 
   // *********************************
