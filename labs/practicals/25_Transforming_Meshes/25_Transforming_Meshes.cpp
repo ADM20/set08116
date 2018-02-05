@@ -8,6 +8,7 @@ using namespace glm;
 mesh m;
 effect eff;
 target_camera cam;
+float s = 1.0f;
 
 bool load_content() {
   // Construct geometry object
@@ -23,7 +24,7 @@ bool load_content() {
 
   // *********************************
   // Create mesh object here
-
+  m = mesh(geom);
   // *********************************
 
   // Load in shaders
@@ -50,34 +51,38 @@ bool update(float delta_time) {
     m.get_transform().position -= vec3(0.0f, 0.0f, 5.0f) * delta_time;
   }
   // *********************************
-
-
-
-
-
-
-
-
+  //
+  if (glfwGetKey(renderer::get_window(), 'A')) {
+	  m.get_transform().position -= vec3(5.0f, 0.0f, 0.0f) * delta_time;
+  }
+  if (glfwGetKey(renderer::get_window(), 'S')) {
+	  m.get_transform().position -= vec3(0.0f, 0.0f, -5.0f) * delta_time;
+  }
+  if (glfwGetKey(renderer::get_window(), 'D')) {
+	  m.get_transform().position -= vec3(-5.0f, 0.0f, 0.0f) * delta_time;
+  }
 
   // *********************************
   if (glfwGetKey(renderer::get_window(), GLFW_KEY_UP)) {
     m.get_transform().rotate(vec3(-pi<float>() * delta_time, 0.0f, 0.0f));
   }
   // *********************************
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  //down
+  if (glfwGetKey(renderer::get_window(), GLFW_KEY_DOWN)) {
+	  m.get_transform().rotate(vec3(+pi<float>() * delta_time, 0.0f, 0.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), GLFW_KEY_LEFT)) {
+	  m.get_transform().rotate(vec3(+pi<float>() * delta_time, 0.0f, 0.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), GLFW_KEY_RIGHT)) {
+	  m.get_transform().rotate(vec3(+pi<float>() * delta_time, 0.0f, 0.0f));
+  }
+  //scale
+  if (glfwGetKey(renderer::get_window(), GLFW_KEY_P)) {
+	  s += 0.05;
+  }if (glfwGetKey(renderer::get_window(), GLFW_KEY_O)) {
+	  s += -0.05f;
+  }
 
   // *********************************
   // Update the camera
@@ -88,10 +93,10 @@ bool update(float delta_time) {
 bool render() {
   // Bind effect
   renderer::bind(eff);
-  mat4 M;
+
   // *********************************
   // Get the model transform from the mesh
-
+  auto M = m.get_transform().get_transform_matrix();
   // *********************************
   // Create MVP matrix
   auto V = cam.get_view();
@@ -101,7 +106,7 @@ bool render() {
   glUniformMatrix4fv(eff.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
   // *********************************
   // Render the mesh here
-
+  renderer::render(m);
   // *********************************
   return true;
 }
