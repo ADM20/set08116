@@ -27,7 +27,7 @@ bool load_content() {
   eff.add_shader("26_Shaders/colour.frag", GL_FRAGMENT_SHADER);
   // *********************************
   // Build effect
-
+  eff.build();
   // *********************************
 
   // Set camera properties
