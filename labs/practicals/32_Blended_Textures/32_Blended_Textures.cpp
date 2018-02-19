@@ -76,6 +76,11 @@ bool render() {
 
   // *********************************
   // Bind the three textures - use different index for each
+  for (int i = 0; i < 2; i++)
+	  {
+	  renderer::bind(texs[i], i);
+	  }
+  renderer::bind(blend_map, 2);
 
 
 
