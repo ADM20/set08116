@@ -5,8 +5,7 @@ using namespace std;
 using namespace graphics_framework;
 using namespace glm;
 
-//mesh map
-map<string, mesh> meshes;
+
 //effects
 effect eff;
 //cameras
@@ -25,6 +24,8 @@ bool c3 = false;
 bool c4 = false;
 bool c5 = false;
 bool c6 = false;
+// mesh map
+map<string, mesh> meshes;
 //texture map
 map<string, texture> tex;
 //transform map
@@ -37,7 +38,8 @@ bool initialise() {
 	glfwGetCursorPos(renderer::get_window(), &cursor_x, &cursor_y);
 	return true;
 }
-bool load_content() {
+bool load_content()
+{
 
 	{
 		//plane mesh
@@ -66,23 +68,32 @@ bool load_content() {
 		mat.set_specular(vec4(1.0f));
 		// - all shininess is 20
 		mat.set_shininess(2.0f);
+	
+		material mat2;
+		//emissive
+		mat2.set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		//specular
+		mat2.set_specular(vec4(0.5f));
+		//shininess
+		mat2.set_shininess(5.0f);
+
 		//table
 		meshes["table"].set_material(mat);
 		//skull
-		meshes["skull"].set_material(mat);
+		meshes["skull"].set_material(mat2);
 		meshes["plane"].set_material(mat);
-		// *********************************
 	}
 
 	// Load texture
 	{
 		tex["floor"] = texture("textures/stone.jpg", true, true);
-		tex["skull"] = texture("textures/wood1.jpg");
+		tex["skull"] = texture("textures/stone.jpg");
 		tex["table1"] = texture("textures/wood1.jpg");
 		tex["table2"] = texture("textures/wood2.jpg");
 
 	}
 
+	//Lights
 	{
 		// Set lighting values
 		// Point 0, Position (-25, 5, -15)
@@ -237,7 +248,7 @@ bool update(float delta_time)
 	if (c1)
 	{
 		
-		// The ratio of pixels to rotation - remember the fov
+		// The ratio of pixels to rotation
 		static double ratio_width = quarter_pi<float>() / static_cast<float>(renderer::get_screen_width());
 		static double ratio_height =
 			(quarter_pi<float>() *
@@ -259,7 +270,7 @@ bool update(float delta_time)
 		// delta_y - x-axis rotation
 		// delta_x - y-axis rotation
 		fcam.rotate(delta_x, -delta_y);
-		// Use keyboard to move the camera - WSAD
+		// Use keyboard to move the camera - WSAD ctrl SPACE
 
 		vec3 forward, back, left, right, up, down;
 		forward = vec3(0, 0, 0);
@@ -270,6 +281,7 @@ bool update(float delta_time)
 		down = vec3(0);
 		vec3 total = vec3(0);
 
+		//take keyboard input
 		if (glfwGetKey(renderer::get_window(), GLFW_KEY_W))
 			forward = vec3(0.0f, 0.0f, 1.0f);
 		if (glfwGetKey(renderer::get_window(), GLFW_KEY_S))
@@ -300,11 +312,13 @@ bool update(float delta_time)
 		cam.set_position(vec3(-50, 20, -10));
 		cam.update(delta_time);
 	}
+	//pos 2
 	if (c3)
 	{
 		cam.set_position(vec3(-50, 10, -50));
 		cam.update(delta_time);
 	}
+	//pos 3
 	if (c4)
 	{
 		cam.set_position(vec3(25, 10, -50));
@@ -400,6 +414,7 @@ bool render() {
 
 		// Bind material
 		renderer::bind(m.get_material(), "mat");
+		renderer::bind(m.get_material(), "mat2");
 		// Bind point lights
 		renderer::bind(points, "points");
 		// Bind spot lights
@@ -448,7 +463,6 @@ bool render() {
 		
 		// Render mesh
 		renderer::render(m);
-		// *********************************
 	}
 
 	return true;
