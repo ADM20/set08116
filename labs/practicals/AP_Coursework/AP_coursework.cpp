@@ -60,13 +60,13 @@ bool load_content()
 	}
 
 	{
-		// Set materials
+		//Set materials
 		material mat;
-		// - all emissive is black
+		//all emissive is black
 		mat.set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-		// - all specular is white
+		//all specular is white
 		mat.set_specular(vec4(1.0f));
-		// - all shininess is 20
+		//shininess is 20
 		mat.set_shininess(2.0f);
 	
 		material mat2;
@@ -75,18 +75,26 @@ bool load_content()
 		//specular
 		mat2.set_specular(vec4(0.5f));
 		//shininess
-		mat2.set_shininess(5.0f);
+		mat2.set_shininess(0.5f);
+
+		material mat3;
+		//emissive
+		mat2.set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		//specular
+		mat2.set_specular(vec4(0.5f));
+		//shininess
+		mat2.set_shininess(1.0f);
 
 		//table
 		meshes["table"].set_material(mat);
 		//skull
 		meshes["skull"].set_material(mat2);
-		meshes["plane"].set_material(mat);
+		meshes["plane"].set_material(mat3);
 	}
 
 	// Load texture
 	{
-		tex["floor"] = texture("textures/stone.jpg", true, true);
+		tex["floor"] = texture("textures/wood1.jpg", true, true);
 		tex["skull"] = texture("textures/stone.jpg");
 		tex["table1"] = texture("textures/wood1.jpg");
 		tex["table2"] = texture("textures/wood2.jpg");
@@ -267,8 +275,6 @@ bool update(float delta_time)
 		delta_x *= ratio_width;
 		delta_y *= ratio_height;
 		// Rotate cameras by delta
-		// delta_y - x-axis rotation
-		// delta_x - y-axis rotation
 		fcam.rotate(delta_x, -delta_y);
 		// Use keyboard to move the camera - WSAD ctrl SPACE
 
@@ -429,8 +435,8 @@ bool render() {
 		}
 		if (e.first == "table")
 		{
-			renderer::bind(tex["table1"], 1);
-			renderer::bind(tex["table2"], 2);
+			renderer::bind(tex["table1"], 2);
+			renderer::bind(tex["table2"], 3);
 			glUniform1i(eff.get_uniform_location("tex"), 1);
 			cout << e.first << endl;
 		}
