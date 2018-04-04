@@ -8,6 +8,7 @@ using namespace glm;
 
 //effects
 effect eff;
+effect sky_eff;
 //cameras
 target_camera cam;
 free_camera fcam;
@@ -30,6 +31,9 @@ map<string, mesh> meshes;
 map<string, texture> tex;
 //transform map
 map<mesh*, mesh*>hierarchy; 
+//skybox
+cubemap sky_cube;
+mesh skybox;
 
 bool initialise() {
 	//hide cursor
@@ -165,27 +169,44 @@ bool load_content()
 		spots[4].set_range(30.0f);
 		spots[4].set_power(1);
 	}
+	
 	{
 		// Load in shaders
 		eff.add_shader("AP_coursework/multi-light.vert", GL_VERTEX_SHADER);
 		eff.add_shader("AP_coursework/multi-light.frag", GL_FRAGMENT_SHADER);
-		
+
+		//sky shaders
+		sky_eff.add_shader("AP_coursework/skybox.vert", GL_VERTEX_SHADER);
+		sky_eff.add_shader("AP_coursework/skybox.frag", GL_FRAGMENT_SHADER);
+
 
 		// Build effect
 		eff.build();
+		sky_eff.build();
+	}
+	//skybox
+	{
+		skybox = mesh(geometry_builder::create_box());
+		skybox.get_transform().scale = vec3(3000, 3000, 3000);
+	}
+	//skybox textures
+	{
+		array<string, 6> filenames = { "textures/brick.jpg","textures/brick.jpg","textures/brick.jpg","textures/brick.jpg","textures/brick.jpg","textures/brick.jpg" };
+		sky_cube = cubemap(filenames);
 	}
 	{
 		// Set target camera properties
 		cam.set_position(vec3(50.0f, 10.0f, 50.0f));
 		cam.set_target(vec3(-25.0f, 6.0f, -25.0f));
 		cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 1000.0f);
-		return true;
+		
 		// Set free camera properties
 		fcam.set_position(vec3(50.0f, 10.0f, 50.0f));
 		fcam.set_target(vec3(0.0f, 0.0f, 0.0f));
 		fcam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 1000.0f);
-		return true;
+		
 	}
+	return true;
 }
 
 bool update(float delta_time)
@@ -310,6 +331,8 @@ bool update(float delta_time)
 		fcam.update(delta_time);
 		// Update cursor pos
 		glfwGetCursorPos(renderer::get_window(), &cursor_x, &cursor_y);
+
+		skybox.get_transform().position = fcam.get_position();
 	}
 	
 	//target cam pos 1
@@ -317,18 +340,21 @@ bool update(float delta_time)
 	{
 		cam.set_position(vec3(-50, 20, -10));
 		cam.update(delta_time);
+		skybox.get_transform().position = cam.get_position();
 	}
 	//pos 2
 	if (c3)
 	{
 		cam.set_position(vec3(-50, 10, -50));
 		cam.update(delta_time);
+		skybox.get_transform().position = cam.get_position();
 	}
 	//pos 3
 	if (c4)
 	{
 		cam.set_position(vec3(25, 10, -50));
 		cam.update(delta_time);
+		skybox.get_transform().position = cam.get_position();
 	}
 
 
@@ -348,6 +374,7 @@ bool update(float delta_time)
 			points[0].move(vec3(1.0f, 0.0f, 0.0f));
 		}
 		fcam.update(delta_time);
+		skybox.get_transform().position = fcam.get_position();
 	}
 	//spot light control
 	if (c6)
@@ -365,6 +392,7 @@ bool update(float delta_time)
 			spots[0].move(vec3(1.0f, 0.0f, 0.0f));
 		}
 		fcam.update(delta_time);
+		skybox.get_transform().position = fcam.get_position();
 	}
 
 
@@ -372,43 +400,64 @@ bool update(float delta_time)
 }
 
 bool render() {
-	// Render meshes
-	for (auto &e : meshes) {
-		auto m = e.second;
-		// Bind effect
-		renderer::bind(eff);
-		// Create MVP matrix
-		mat4 M;
-		M = m.get_transform().get_transform_matrix();
-		mat4 V;
-		mat4 P;
-		//check what camera is used
-		if (c1);
-		{
-			V = fcam.get_view();
-			P = cam.get_projection();
-		}
-		if (c2)
-		{
-			V = cam.get_view();
-			P = cam.get_projection();
-		}
-		if (c3)
-		{
-			V = cam.get_view();
-			P = cam.get_projection();
-		}
-		if (c4)
-		{
-			V = cam.get_view();
-			P = cam.get_projection();
-		}
 
-		
+	// Create MVP matrix
+	mat4 M;
+	mat4 V;
+	mat4 P;
+
+	//check what camera is used
+	if (c1);
+	{
+		V = fcam.get_view();
+		P = cam.get_projection();
+	}
+	if (c2)
+	{
+		V = cam.get_view();
+		P = cam.get_projection();
+	}
+	if (c3)
+	{
+		V = cam.get_view();
+		P = cam.get_projection();
+	}
+	if (c4)
+	{
+		V = cam.get_view();
+		P = cam.get_projection();
+	}
+
+	//render skybox
+	{
+		M = skybox.get_transform().get_transform_matrix();
+
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(GL_FALSE);
+		glDisable(GL_CULL_FACE);
+
+		renderer::bind(sky_eff);
 
 		mat4 MVP = P * V * M;
 
-	
+		//cubemap uniform
+		glUniformMatrix4fv(sky_eff.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
+		renderer::bind(sky_cube, 0);
+		glUniform1i(sky_eff.get_uniform_location("cubemap"), 0);
+		renderer::render(skybox);
+		cout << "skybox" << endl;
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		glEnable(GL_CULL_FACE);
+
+	}
+	// Render meshes
+	for (auto &e : meshes) {
+		auto m = e.second;
+
+		M = m.get_transform().get_transform_matrix();
+		mat4 MVP = P * V * M;
 		// Bind effect
 		renderer::bind(eff);
 		// Set MVP matrix uniform
@@ -443,8 +492,6 @@ bool render() {
 
 		if (e.first == "plane")
 		{
-
-			
 			//bind actual texture
 			renderer::bind(tex["floor"], 0);
 			//set tex uniform
