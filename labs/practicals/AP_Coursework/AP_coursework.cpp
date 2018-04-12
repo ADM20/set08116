@@ -49,7 +49,7 @@ bool load_content()
 		//plane mesh
 		meshes["plane"] = mesh(geometry_builder::create_plane());
 		//skull mesh
-		meshes["skull"] = mesh(geometry("models/skull3.obj"));
+		meshes["skull"] = mesh(geometry("models/skull.obj"));
 		//table mesh
 		meshes["table"] = mesh(geometry("models/table.obj"));
 	}
@@ -71,7 +71,7 @@ bool load_content()
 		//all specular is white
 		mat.set_specular(vec4(1.0f));
 		//shininess is 20
-		mat.set_shininess(2.0f);
+		mat.set_shininess(20.0f);
 	
 		material mat2;
 		//emissive
@@ -99,10 +99,9 @@ bool load_content()
 	// Load texture
 	{
 		tex["floor"] = texture("textures/wood1.jpg", true, true);
-		tex["skull"] = texture("textures/stone.jpg");
+		tex["skull"] = texture("textures/color.png");
 		tex["table1"] = texture("textures/wood1.jpg");
 		tex["table2"] = texture("textures/wood2.jpg");
-
 	}
 
 	//Lights
@@ -130,7 +129,7 @@ bool load_content()
 		points[3].set_range(20.0f);
 		// Spot 0, Position (-25, 10, -15)
 		spots[0].set_position(vec3(-25.0f, 10.0f, -15.0f));
-		spots[0].set_light_colour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+		spots[0].set_light_colour(vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		// Green, Direction (1, -1, -1) normalized
 		spots[0].set_direction(normalize(vec3(1.0f, -1.0f, -1.0f)));
 		// 20 range,0.5 power
@@ -198,12 +197,12 @@ bool load_content()
 		// Set target camera properties
 		cam.set_position(vec3(50.0f, 10.0f, 50.0f));
 		cam.set_target(vec3(-25.0f, 6.0f, -25.0f));
-		cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 1000.0f);
+		cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 4000.0f);
 		
 		// Set free camera properties
 		fcam.set_position(vec3(50.0f, 10.0f, 50.0f));
 		fcam.set_target(vec3(0.0f, 0.0f, 0.0f));
-		fcam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 1000.0f);
+		fcam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 4000.0f);
 		
 	}
 	return true;
@@ -484,18 +483,18 @@ bool render() {
 		}
 		if (e.first == "table")
 		{
-			renderer::bind(tex["table1"], 2);
-			renderer::bind(tex["table2"], 3);
-			glUniform1i(eff.get_uniform_location("tex"), 1);
+		//	renderer::bind(tex["table1"], 1);
+			renderer::bind(tex["table2"], 0);
+			glUniform1i(eff.get_uniform_location("tex"), 0);
 			cout << e.first << endl;
 		}
 
 		if (e.first == "plane")
 		{
 			//bind actual texture
-			renderer::bind(tex["floor"], 0);
+			renderer::bind(tex["floor"], 2);
 			//set tex uniform
-			glUniform1i(eff.get_uniform_location("tex"), 0);
+			glUniform1i(eff.get_uniform_location("tex"), 2);
 			if (c1)
 				glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(fcam.get_position()));
 			else 
@@ -507,7 +506,7 @@ bool render() {
 		
 
 		// Set tex uniform
-		glUniform1i(eff.get_uniform_location("tex"), 0);
+		//glUniform1i(eff.get_uniform_location("tex"), 0);
 		// Set eye position- Get this from active camera
 		if (c1)
 			glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(fcam.get_position()));

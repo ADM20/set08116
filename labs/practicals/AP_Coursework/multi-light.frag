@@ -107,15 +107,15 @@ void main() {
   vec3 view_dir = normalize(eye_pos - vertex_position);
   // Sample texture
   vec4 tex_colour = texture(tex, tex_coord);
-  // Sum point lights
+  //Sum point lights
   for (int i = 0; i < 4; ++i)
   {
-  colour += calculate_point(points[i], mat, vertex_position, transformed_normal, view_dir, tex_colour);
+    colour += calculate_point(points[i], mat, vertex_position, transformed_normal, view_dir, tex_colour);
   }
-  // Sum spot lights
+  //Sum spot lights
   for(int i = 0; i < 5; ++i)
   {
-  colour += calculate_spot(spots[i], mat, vertex_position, transformed_normal, view_dir, tex_colour);
+    colour += calculate_spot(spots[i], mat, vertex_position, transformed_normal, view_dir, tex_colour);
   }
   // *********************************
 }
