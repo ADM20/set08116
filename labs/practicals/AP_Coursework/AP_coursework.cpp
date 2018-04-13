@@ -52,34 +52,49 @@ bool load_content()
 		meshes["skull"] = mesh(geometry("models/skull.obj"));
 		//table mesh
 		meshes["table"] = mesh(geometry("models/table.obj"));
+		//bottle mesh
+		meshes["bottle1"] = mesh(geometry("models/glass_bottle.obj"));
+		//box mesh
+		meshes["box"] = mesh(geometry("models/box1.obj"));
+		//chair mesh
+		meshes["chair"] = mesh(geometry("models/chair.obj"));
+		
+
 	}
 
 	{
 		//my transforms
 		meshes["plane"].get_transform().scale = (vec3(1, 1, 1));
 		meshes["skull"].get_transform().scale = (vec3(0.5, 0.5, 0.5));
-		meshes["skull"].get_transform().position = vec3(-25, 6.25, -25);
-		meshes["table"].get_transform().scale = (vec3(0.1, 0.1, 0.1));
-		meshes["table"].get_transform().position = vec3(-20, 1, -20);
+		meshes["skull"].get_transform().position = vec3(-18, 6, -18);
+		meshes["table"].get_transform().scale = (vec3(3, 3, 3));
+		meshes["table"].get_transform().position = vec3(-20, 0, -20);
+		meshes["bottle1"].get_transform().scale = (vec3(1, 1, 1));
+		meshes["bottle1"].get_transform().position = vec3(-18, 6, -18);
+		meshes["box"].get_transform().scale = (vec3(0.5, 0.5, 0.5));
+		meshes["box"].get_transform().position = vec3(-25, 7, -18);
+		meshes["chair"].get_transform().scale = (vec3(0.85, 0.85, 0.85));
+		meshes["chair"].get_transform().position = vec3(-30, -1.5, -22);
+	
 	}
 
 	{
 		//Set materials
 		material mat;
-		//all emissive is black
+		//emissive 
 		mat.set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-		//all specular is white
+		// specular 
 		mat.set_specular(vec4(1.0f));
-		//shininess is 20
+		//shininess 
 		mat.set_shininess(20.0f);
 	
 		material mat2;
 		//emissive
 		mat2.set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
 		//specular
-		mat2.set_specular(vec4(0.5f));
+		mat2.set_specular(vec4(0.1f));
 		//shininess
-		mat2.set_shininess(0.5f);
+		mat2.set_shininess(0.1f);
 
 		material mat3;
 		//emissive
@@ -87,86 +102,54 @@ bool load_content()
 		//specular
 		mat2.set_specular(vec4(0.5f));
 		//shininess
-		mat2.set_shininess(1.0f);
+		mat2.set_shininess(0.0f);
 
-		//table
+		//table mat
 		meshes["table"].set_material(mat);
-		//skull
+		//bottle mat
+		meshes["bottle1"].set_material(mat);
+		meshes["box"].set_material(mat3);
+		
+
+		//skull mat
 		meshes["skull"].set_material(mat2);
+		//plane mat
 		meshes["plane"].set_material(mat3);
+		//chair mat
+		meshes["chair"].set_material(mat3);
+
 	}
 
 	// Load texture
 	{
-		tex["floor"] = texture("textures/wood1.jpg", true, true);
+		tex["floor"] = texture("textures/stone.jpg", true, true);
 		tex["skull"] = texture("textures/color.png");
-		tex["table1"] = texture("textures/wood1.jpg");
-		tex["table2"] = texture("textures/wood2.jpg");
+		tex["table1"] = texture("textures/wood001.jpg");
+		tex["bottle1"] = texture("textures/snow.jpg");
+		tex["box"] = texture("textures/cardboard.jpg");
+		tex["chair"] = texture("textures/wood1.jpg");
+	
 	}
 
 	//Lights
 	{
 		// Set lighting values
-		// Point 0, Position (-25, 5, -15)
-		points[0].set_position(vec3(-25.0f, 10.0f, -10.0f));
+		// controlable Point light
+		points[0].set_position(vec3(-25.0f, 25.0f, -15.0f));
 		points[0].set_light_colour(vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		// Red, 20 range
 		points[0].set_range(20.0f);
-		// Point 1, Position (-25, 5, -35)
-		points[1].set_position(vec3(-25.0f, 5.0f, -15.0f));
-		points[1].set_light_colour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-		// Red,20 range
+		//default light
+		points[1].set_position(vec3(-25.0f, 15.0f, -15.0f));
+		points[1].set_light_colour(vec4(1.0f, 1.0f, 0.0f, 1.0f));
 		points[1].set_range(20.0f);
-		// Point 2,Position (-10, 5, -15)
-		points[2].set_position(vec3(-10.0f, 5.0f, -15.0f));
-		points[2].set_light_colour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-		// Red,20 range
-		points[2].set_range(20.0f);
-		// Point 3,Position (-10, 5, -35)
-		points[3].set_position(vec3(-10.0f, 5.0f, -15.0f));
-		points[3].set_light_colour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-		// Red,20 range
-		points[3].set_range(20.0f);
-		// Spot 0, Position (-25, 10, -15)
-		spots[0].set_position(vec3(-25.0f, 10.0f, -15.0f));
+		
+		//spot light
+		spots[0].set_position(vec3(-25.0f, 20.0f, -15.0f));
 		spots[0].set_light_colour(vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		// Green, Direction (1, -1, -1) normalized
 		spots[0].set_direction(normalize(vec3(1.0f, -1.0f, -1.0f)));
-		// 20 range,0.5 power
 		spots[0].set_range(20.0f);
 		spots[0].set_power(0.5);
-		// Spot 1,Position (-25, 10, -35)
-		spots[1].set_position(vec3(-25.0f, 10.0f, -35.0f));
-		spots[1].set_light_colour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-		// Green,Direction (1, -1, 1) normalized
-		spots[1].set_direction(normalize(vec3(1.0f, -1.0f, 1.0f)));
-		// 20 range,0.5 power
-		spots[1].set_range(20.0f);
-		spots[1].set_power(0.5);
-		// Spot 2,Position (-10, 10, -15)
-		spots[2].set_position(vec3(-10.0f, 10.0f, -15.0f));
-		spots[2].set_light_colour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-		// Green,Direction (-1, -1, -1) normalized
-		spots[2].set_direction(normalize(vec3(-1.0f, -1.0f, -1.0f)));
-		// 20 range,0.5 power
-		spots[2].set_range(20.0f);
-		spots[2].set_power(0.5);
-		// Spot 3,Position (-10, 10, -35)
-		spots[3].set_position(vec3(-10.0f, 10.0f, -35.0f));
-		spots[3].set_light_colour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-		// Green,Direction (-1, -1, 1) normalized
-		spots[3].set_direction(normalize(vec3(-1.0f, -1.0f, 1.0f)));
-		// 20 range,0.5 power
-		spots[3].set_range(20.0f);
-		spots[3].set_power(0.5);
-		// Spot 4,Position (-17.5, 15, -25)
-		spots[4].set_position(vec3(-17.5f, 15.0f, -25.0f));
-		spots[4].set_light_colour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-		// Blue,Direction (0, -1, 0)
-		spots[4].set_direction(normalize(vec3(0.0f, -1.0f, 0.0f)));
-		// 30 range,1.0 power	
-		spots[4].set_range(30.0f);
-		spots[4].set_power(1);
+	
 	}
 	
 	{
@@ -190,7 +173,7 @@ bool load_content()
 	}
 	//skybox textures
 	{
-		array<string, 6> filenames = { "textures/brick.jpg","textures/brick.jpg","textures/brick.jpg","textures/brick.jpg","textures/brick.jpg","textures/brick.jpg" };
+		array<string, 6> filenames = { "textures/posx.jpg","textures/negx.jpg","textures/posy.jpg","textures/negy.jpg","textures/posz.jpg","textures/negz.jpg" };
 		sky_cube = cubemap(filenames);
 	}
 	{
@@ -444,7 +427,6 @@ bool render() {
 		renderer::bind(sky_cube, 0);
 		glUniform1i(sky_eff.get_uniform_location("cubemap"), 0);
 		renderer::render(skybox);
-		cout << "skybox" << endl;
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
@@ -466,41 +448,63 @@ bool render() {
 		// Set N matrix uniform - remember - 3x3 matrix
 		glUniformMatrix3fv(eff.get_uniform_location("N"), 1, GL_FALSE, value_ptr(m.get_transform().get_normal_matrix()));
 
-		// Bind material
-		renderer::bind(m.get_material(), "mat");
-		renderer::bind(m.get_material(), "mat2");
+		
+		
 		// Bind point lights
 		renderer::bind(points, "points");
 		// Bind spot lights
 		renderer::bind(spots, "spots");
 
-		// Bind texture
+		// Bind textures
 		if (e.first == "skull")
 		{
+			renderer::bind(m.get_material(), "mat2");
 			renderer::bind(tex["skull"], 0);
 			glUniform1i(eff.get_uniform_location("tex"), 0);
-			cout << e.first << endl;
+			
 		}
+		if (e.first == "chair")
+		{
+			renderer::bind(m.get_material(), "mat3");
+			renderer::bind(tex["chair"], 0);
+			glUniform1i(eff.get_uniform_location("tex"), 0);
+
+		}
+		if (e.first == "box")
+		{
+			renderer::bind(m.get_material(), "mat");
+			renderer::bind(tex["box"], 0);
+			glUniform1i(eff.get_uniform_location("tex"), 0);
+
+		}
+		if (e.first == "bottle1")
+		{
+			renderer::bind(m.get_material(), "mat");
+			renderer::bind(tex["bottle1"], 0);
+			glUniform1i(eff.get_uniform_location("tex"), 0);
+
+		}
+		
 		if (e.first == "table")
 		{
 		//	renderer::bind(tex["table1"], 1);
-			renderer::bind(tex["table2"], 0);
+			renderer::bind(m.get_material(), "mat3");
+			renderer::bind(tex["table1"], 0);
 			glUniform1i(eff.get_uniform_location("tex"), 0);
-			cout << e.first << endl;
+			
 		}
 
 		if (e.first == "plane")
 		{
-			//bind actual texture
+			// Bind material
+			renderer::bind(m.get_material(), "mat");
+			//bind texture
 			renderer::bind(tex["floor"], 2);
 			//set tex uniform
 			glUniform1i(eff.get_uniform_location("tex"), 2);
-			if (c1)
-				glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(fcam.get_position()));
-			else 
-				glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(cam.get_position()));
+			
 		
-			cout << e.first << endl;
+			
 		}
 
 		
