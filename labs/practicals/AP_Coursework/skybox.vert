@@ -1,4 +1,4 @@
-#version 410
+#version 440
 
 // MVP transformation matrix
 uniform mat4 MVP;

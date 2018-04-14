@@ -1,4 +1,4 @@
-#version 410
+#version 440
 
 // Cubemap texture
 uniform samplerCube cubemap;

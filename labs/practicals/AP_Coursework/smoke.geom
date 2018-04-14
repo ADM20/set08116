@@ -8,11 +8,11 @@ layout(triangle_strip, max_vertices = 4) out;
 
 layout(location = 0) in float height[];
 
-out VertexData {
+out VertexData 
+{
   vec4 colour;
   vec2 tex_coord;
 };
-
 
 void main() {
   vec4 position = gl_in[0].gl_Position;

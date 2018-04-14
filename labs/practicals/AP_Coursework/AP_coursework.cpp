@@ -2,9 +2,20 @@
 #include <graphics_framework.h>
 
 using namespace std;
+using namespace std::chrono;
 using namespace graphics_framework;
 using namespace glm;
 
+//smoke///////////
+const unsigned int MAX_PARTICLES = 4096;
+vec4 positions[MAX_PARTICLES];
+vec4 velocitys[MAX_PARTICLES];
+GLuint G_Position_buffer, G_Velocity_buffer;
+effect smoke_eff;
+effect compute_eff;
+GLuint vao;
+texture smoke_tex;
+///////////////
 
 //effects
 effect eff;
@@ -44,7 +55,52 @@ bool initialise() {
 }
 bool load_content()
 {
+	//smoke
+	////////////////////////////////////////////////////////////////////////
 
+	default_random_engine rand(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+	uniform_real_distribution<float> dist;
+	
+	smoke_tex = texture("textures/smoke.png");
+
+	//particles
+	for (unsigned int i = 0; i < MAX_PARTICLES; ++i) 
+	{
+		positions[i] = vec4(((2.0f * dist(rand)) - 1.0f) / 10.0f, 5.0 * dist(rand), 0.0f, 0.0f);
+		velocitys[i] = vec4(0.0f, 0.1f + dist(rand), 0.0f, 0.0f);
+	}
+	//load smoke shaders
+	smoke_eff.add_shader("AP_coursework/smoke.vert", GL_VERTEX_SHADER);
+	smoke_eff.add_shader("AP_coursework/smoke.frag", GL_FRAGMENT_SHADER);
+	smoke_eff.add_shader("AP_coursework/smoke.geom", GL_GEOMETRY_SHADER);
+
+	smoke_eff.build();
+
+	compute_eff.add_shader("AP_coursework/particle.comp", GL_COMPUTE_SHADER);
+	compute_eff.build();
+
+	// a useless vao, but we need it bound or we get errors.
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	// *********************************
+	//Generate Position Data buffer
+
+	// Bind as GL_SHADER_STORAGE_BUFFER
+
+	// Send Data to GPU, use GL_DYNAMIC_DRAW
+
+
+	// Generate Velocity Data buffer
+
+	// Bind as GL_SHADER_STORAGE_BUFFER
+
+	// Send Data to GPU, use GL_DYNAMIC_DRAW
+
+	// *********************************
+	//Unbind
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	/////////////////////////////////////////////////////////////////////////////////
 	{
 		//plane mesh
 		meshes["plane"] = mesh(geometry_builder::create_plane());
@@ -192,8 +248,17 @@ bool load_content()
 }
 
 bool update(float delta_time)
-
 {
+	//smoke
+	///////////////////////////////////////////////////////
+	if (delta_time > 10.0f) {
+		delta_time = 10.0f;
+	}
+	renderer::bind(compute_eff);
+	glUniform3fv(compute_eff.get_uniform_location("max_dims"), 1, &(vec3(3.0f, 5.0f, 5.0f))[0]);
+	glUniform1f(compute_eff.get_uniform_location("delta_time"), delta_time);
+	///////////////////////////////////////////////////////////
+
 	//choose camera
 	if (glfwGetKey(renderer::get_window(), GLFW_KEY_1))
 	{
@@ -409,6 +474,63 @@ bool render() {
 		V = cam.get_view();
 		P = cam.get_projection();
 	}
+
+	//smoke
+	/////////////////////////////////////////////
+
+	// Bind Compute Shader
+	renderer::bind(compute_eff);
+	// Bind data as SSBO
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, G_Position_buffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, G_Velocity_buffer);
+	// Dispatch
+	glDispatchCompute(MAX_PARTICLES / 128, 1, 1);
+	// Sync, wait for completion
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	// *********************************
+	// Bind render effect
+
+	// Create MV matrix
+
+
+
+	// Set the colour uniform
+
+	// Set MV, and P matrix uniforms seperatly
+
+
+	// Set point_size size uniform to .1f
+
+	// Bind particle texture
+
+
+	// *********************************
+
+	// Bind position buffer as GL_ARRAY_BUFFER
+	glBindBuffer(GL_ARRAY_BUFFER, G_Position_buffer);
+	// Setup vertex format
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	// Enable Blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Disable Depth Mask
+	glDepthMask(GL_FALSE);
+	// Render
+	glDrawArrays(GL_POINTS, 0, MAX_PARTICLES);
+	// Tidy up, enable depth mask
+	glDepthMask(GL_TRUE);
+	// Disable Blend
+	glDisable(GL_BLEND);
+	// Unbind all arrays
+	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glUseProgram(0);
+
+	//////////////////////////////////////////
+
 
 	//render skybox
 	{
