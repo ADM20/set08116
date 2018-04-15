@@ -13,12 +13,12 @@ vec4 positions[MAX_PARTICLES];
 vec4 velocitys[MAX_PARTICLES];
 
 GLuint G_Position_buffer, G_Velocity_buffer;
-
+ 
 effect eff;
 effect compute_eff;
 target_camera cam;
 GLuint vao;
-
+ 
 bool load_content() {
   cout << "Generating " << MAX_PARTICLES << " Particles" << endl;
   default_random_engine rand(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());

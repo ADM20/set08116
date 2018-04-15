@@ -62,7 +62,7 @@ bool load_content()
 	default_random_engine rand(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
 	uniform_real_distribution<float> dist;
 	
-	smoke_tex = texture("textures/smoke.png");
+	
 
 	//particles
 	for (unsigned int i = 0; i < MAX_PARTICLES; ++i) 
@@ -70,15 +70,7 @@ bool load_content()
 		positions[i] = vec4(((2.0f * dist(rand)) - 1.0f) / 10.0f, 5.0 * dist(rand), 0.0f, 0.0f);
 		velocitys[i] = vec4(0.0f, 0.1f + dist(rand), 0.0f, 0.0f);
 	}
-	//load smoke shaders
-	smoke_eff.add_shader("AP_coursework/smoke.vert", GL_VERTEX_SHADER);
-	smoke_eff.add_shader("AP_coursework/smoke.frag", GL_FRAGMENT_SHADER);
-	smoke_eff.add_shader("AP_coursework/smoke.geom", GL_GEOMETRY_SHADER);
-
-	smoke_eff.build();
-
-	compute_eff.add_shader("AP_coursework/particle.comp", GL_COMPUTE_SHADER);
-	compute_eff.build();
+	
 
 	// a useless vao, but we need it bound or we get errors.
 	glGenVertexArrays(1, &vao);
@@ -89,7 +81,7 @@ bool load_content()
 	glGenBuffers(1, &G_Position_buffer);
 	// Bind as GL_SHADER_STORAGE_BUFFER
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, G_Position_buffer);
-// Send Data to GPU, use GL_DYNAMIC_DRAW
+	// Send Data to GPU, use GL_DYNAMIC_DRAW
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(positions[0]) * MAX_PARTICLES, positions, GL_DYNAMIC_DRAW);
 	// Generate Velocity Data buffer
 	glGenBuffers(1, &G_Velocity_buffer);
@@ -178,15 +170,15 @@ bool load_content()
 
 	}
 
-	// Load texture
+	// Load texture 
 	{
 		tex["floor"] = texture("textures/stone.jpg", true, true);
 		tex["skull"] = texture("textures/color.png");
 		tex["table1"] = texture("textures/wood001.jpg");
-		tex["bottle1"] = texture("textures/Transparency.jpg");
+		tex["bottle1"] = texture("textures/snow.jpg");
 		tex["box"] = texture("textures/cardboard.jpg");
 		tex["chair"] = texture("textures/wood1.jpg");
-	
+		smoke_tex = texture("textures/smoke.png");
 	}
 
 	//Lights
@@ -218,11 +210,20 @@ bool load_content()
 		//sky shaders
 		sky_eff.add_shader("AP_coursework/skybox.vert", GL_VERTEX_SHADER);
 		sky_eff.add_shader("AP_coursework/skybox.frag", GL_FRAGMENT_SHADER);
+		
+		//load smoke shaders
+		smoke_eff.add_shader("AP_coursework/smoke.vert", GL_VERTEX_SHADER);
+		smoke_eff.add_shader("AP_coursework/smoke.frag", GL_FRAGMENT_SHADER);
+		smoke_eff.add_shader("AP_coursework/smoke.geom", GL_GEOMETRY_SHADER);
 
+		compute_eff.add_shader("AP_coursework/particle.comp", GL_COMPUTE_SHADER);
+		
 
 		// Build effect
 		eff.build();
 		sky_eff.build();
+		smoke_eff.build();
+		compute_eff.build();
 	}
 	//skybox
 	{
@@ -526,9 +527,10 @@ bool render() {
 		// Disable Blend
 		glDisable(GL_BLEND);
 		// Unbind all arrays
-		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(0); 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glUseProgram(0);
+		return true;
 	}
 	//////////////////////////////////////////
 
