@@ -15,6 +15,7 @@ effect smoke_eff;
 effect compute_eff;
 GLuint vao;
 texture smoke_tex;
+bool first_frame = true;
 ///////////////
 
 //effects
@@ -83,19 +84,20 @@ bool load_content()
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	// *********************************
+	
 	//Generate Position Data buffer
-
+	glGenBuffers(1, &G_Position_buffer);
 	// Bind as GL_SHADER_STORAGE_BUFFER
-
-	// Send Data to GPU, use GL_DYNAMIC_DRAW
-
-
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, G_Position_buffer);
+// Send Data to GPU, use GL_DYNAMIC_DRAW
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(positions[0]) * MAX_PARTICLES, positions, GL_DYNAMIC_DRAW);
 	// Generate Velocity Data buffer
-
+	glGenBuffers(1, &G_Velocity_buffer);
 	// Bind as GL_SHADER_STORAGE_BUFFER
-
-	// Send Data to GPU, use GL_DYNAMIC_DRAW
-
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, G_Velocity_buffer);
+	//draw
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(velocitys[0]) * MAX_PARTICLES, velocitys, GL_DYNAMIC_DRAW);
+	
 	// *********************************
 	//Unbind
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -181,7 +183,7 @@ bool load_content()
 		tex["floor"] = texture("textures/stone.jpg", true, true);
 		tex["skull"] = texture("textures/color.png");
 		tex["table1"] = texture("textures/wood001.jpg");
-		tex["bottle1"] = texture("textures/snow.jpg");
+		tex["bottle1"] = texture("textures/Transparency.jpg");
 		tex["box"] = texture("textures/cardboard.jpg");
 		tex["chair"] = texture("textures/wood1.jpg");
 	
@@ -477,61 +479,60 @@ bool render() {
 
 	//smoke
 	/////////////////////////////////////////////
+	{
+		// Bind Compute Shader
+		renderer::bind(compute_eff);
+		// Bind data as SSBO
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, G_Position_buffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, G_Velocity_buffer);
+		// Dispatch
+		glDispatchCompute(MAX_PARTICLES / 128, 1, 1);
+		// Sync, wait for completion
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	// Bind Compute Shader
-	renderer::bind(compute_eff);
-	// Bind data as SSBO
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, G_Position_buffer);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, G_Velocity_buffer);
-	// Dispatch
-	glDispatchCompute(MAX_PARTICLES / 128, 1, 1);
-	// Sync, wait for completion
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		// *********************************
+		// Bind render effect
+		renderer::bind(smoke_eff);
+		// Create MV matrix
+		mat4 M(1.0f);
+		auto V = cam.get_view();
+		auto MV = V * M;
+		// Set the colour uniform
+		glUniform4fv(smoke_eff.get_uniform_location("colour"), 1, value_ptr(vec4(1.0f)));
+		// Set MV, and P matrix uniforms seperatly
+		glUniformMatrix4fv(smoke_eff.get_uniform_location("MV"), 1, GL_FALSE, value_ptr(MV));
+		glUniformMatrix4fv(smoke_eff.get_uniform_location("P"), 1, GL_FALSE, value_ptr(cam.get_projection()));
+		// Set point_size size uniform to .1f
+		glUniform1f(smoke_eff.get_uniform_location("point_size"), 0.1f);
+		// Bind particle texture
+		renderer::bind(smoke_tex, 0);
+		// *********************************
 
-	// *********************************
-	// Bind render effect
-
-	// Create MV matrix
-
-
-
-	// Set the colour uniform
-
-	// Set MV, and P matrix uniforms seperatly
-
-
-	// Set point_size size uniform to .1f
-
-	// Bind particle texture
-
-
-	// *********************************
-
-	// Bind position buffer as GL_ARRAY_BUFFER
-	glBindBuffer(GL_ARRAY_BUFFER, G_Position_buffer);
-	// Setup vertex format
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
-	// Enable Blending
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// Disable Depth Mask
-	glDepthMask(GL_FALSE);
-	// Render
-	glDrawArrays(GL_POINTS, 0, MAX_PARTICLES);
-	// Tidy up, enable depth mask
-	glDepthMask(GL_TRUE);
-	// Disable Blend
-	glDisable(GL_BLEND);
-	// Unbind all arrays
-	glDisableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glUseProgram(0);
-
+		// Bind position buffer as GL_ARRAY_BUFFER
+		glBindBuffer(GL_ARRAY_BUFFER, G_Position_buffer);
+		// Setup vertex format
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		// Enable Blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// Disable Depth Mask
+		glDepthMask(GL_FALSE);
+		// Render
+		glDrawArrays(GL_POINTS, 0, MAX_PARTICLES);
+		// Tidy up, enable depth mask
+		glDepthMask(GL_TRUE);
+		// Disable Blend
+		glDisable(GL_BLEND);
+		// Unbind all arrays
+		glDisableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glUseProgram(0);
+	}
 	//////////////////////////////////////////
 
-
+	 
 	//render skybox
 	{
 		M = skybox.get_transform().get_transform_matrix();
